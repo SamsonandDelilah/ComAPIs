@@ -29,4 +29,4 @@ Together, we can build a rich ecosystem of open APIs that serve as the backbone 
 Feel free to customize or expand this text as your project evolves! If you want, I can help you format it nicely with badges, usage examples, or contribution guidelines.
 
 ---
-Antwort von Perplexity: https://www.perplexity.ai/search/wenn-textobjekte-gegeben-sind-_VK0P1_8SHeQjRIcXXEW8Q?utm_source=copy_output
+With the help of Perplexity: https://www.perplexity.ai/
