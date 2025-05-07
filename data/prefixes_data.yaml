@@ -1,0 +1,17 @@
+prefixes:
+  - symbol: "k"
+    name_en: "kilo"
+    factor: 1000
+    unit_symbol: "m"
+  - symbol: "M"
+    name_en: "mega"
+    factor: 1000000
+    unit_symbol: "m"
+  - symbol: "m"
+    name_en: "milli"
+    factor: 0.001
+    unit_symbol: "m"
+  - symbol: "µ"
+    name_en: "micro"
+    factor: 0.000001
+    unit_symbol: "m"

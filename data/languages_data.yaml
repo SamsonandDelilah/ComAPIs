@@ -1,0 +1,11 @@
+languages:
+  - code: de
+    name_en: German
+    name_native: Deutsch
+    script: Latn
+    direction: ltr
+  - code: ar
+    name_en: Arabic
+    name_native: العربية
+    script: Arab
+    direction: rtl

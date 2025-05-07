@@ -1,0 +1,24 @@
+table: prefixes
+fields:
+  - name: symbol
+    type: TEXT
+    unique: true
+    comment: "Symbol des Präfixes (z.B. 'k' für Kilo)"
+  - name: name_en
+    type: TEXT
+    comment: "Englischer Name (z.B. 'kilo')"
+  - name: factor
+    type: REAL
+    comment: "Multiplikationsfaktor (z.B. 1000)"
+  - name: unit_symbol
+    type: TEXT
+    comment: "Referenz zur Einheit (z.B. 'm' für Meter)"
+indexes:
+  - columns: [symbol]
+  - columns: [unit_symbol]
+queries:
+  - endpoint: /by-unit/{unit}
+    sql: SELECT * FROM prefixes WHERE unit_symbol = ?
+  - endpoint: /by-factor-range
+    sql: SELECT * FROM prefixes WHERE factor BETWEEN ? AND ?
+

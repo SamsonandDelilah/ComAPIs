@@ -1,0 +1,22 @@
+base_SI_units:
+  - symbol: m
+    name_en: metre
+    dimension: L
+  - symbol: kg
+    name_en: kilogram
+    dimension: M
+  - symbol: s
+    name_en: second
+    dimension: T
+  - symbol: A
+    name_en: ampere
+    dimension: I
+  - symbol: K
+    name_en: kelvin
+    dimension: U+0398 
+  - symbol: mol
+    name_en: mole
+    dimension: N
+  - symbol: cd
+    name_en: candela
+    dimension: J

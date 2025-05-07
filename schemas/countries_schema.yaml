@@ -1,0 +1,27 @@
+table: countries
+fields:
+  - name: iso2
+    type: TEXT
+    unique: true
+    comment: ISO 3166-1 alpha-2
+  - name: iso3
+    type: TEXT
+    unique: true
+    comment: ISO 3166-1 alpha-3
+  - name: name_en
+    type: TEXT
+  - name: region
+    type: TEXT
+    comment: UN Region (Americas, Europe, etc.)
+  - name: currency
+    type: TEXT
+    comment: ISO 4217 currency code
+  - name: languages
+    type: TEXT
+    comment: Comma-separated language codes (de,fr,...)
+indexes:
+  - columns: [iso2]
+  - columns: [iso3]
+queries:
+  - endpoint: /by-currency/{currency}
+    sql: SELECT * FROM countries WHERE currency = ?

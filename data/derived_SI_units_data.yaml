@@ -1,0 +1,9 @@
+derived_SI_units:
+  - symbol: N
+    name_en: newton
+    dimension: MLT-2
+    definition: "kg*m/s^2"
+  - symbol: J
+    name_en: joule
+    dimension: ML2T-2
+    definition: "kg*m^2/s^2"

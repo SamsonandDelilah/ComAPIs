@@ -1,0 +1,23 @@
+fields:
+- comment: ISO 639-1 (2-letter) or 639-3 (3-letter)
+  name: code
+  type: TEXT
+  unique: true
+- name: name_en
+  type: TEXT
+- comment: "Native name (e.g., \"Deutsch\" f\xC3\xBCr German)"
+  name: name_native
+  type: TEXT
+- comment: ISO 15924 script code (Latn, Cyrl, etc.)
+  name: script
+  type: TEXT
+- check: direction IN ('ltr', 'rtl')
+  name: direction
+  type: TEXT
+indexes:
+- columns:
+  - code
+queries:
+- endpoint: /by-script/{script}
+  sql: SELECT * FROM languages WHERE script = ?
+table: languages

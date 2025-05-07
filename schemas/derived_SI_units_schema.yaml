@@ -1,0 +1,13 @@
+table: derived_SI_units
+fields:
+  - name: symbol
+    type: TEXT
+    unique: true
+  - name: name_en
+    type: TEXT
+  - name: dimension
+    type: TEXT
+  - name: definition
+    type: TEXT
+indexes:
+  - columns: [symbol]

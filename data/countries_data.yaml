@@ -1,0 +1,13 @@
+countries:
+  - iso2: DE
+    iso3: DEU
+    name_en: Germany
+    region: Europe
+    currency: EUR
+    languages: de
+  - iso2: FR
+    iso3: FRA
+    name_en: France
+    region: Europe
+    currency: EUR
+    languages: fr
