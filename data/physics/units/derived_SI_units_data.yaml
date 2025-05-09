@@ -1,0 +1,16 @@
+metadata:
+  filename: derived_SI_units_data.yaml
+  version: "1.0.0"
+  created_at: "2025-05-08T15:00:00Z"
+  author: "Max Mustermann"
+  source: "https://doi.org/10.xxxx/abc123"
+
+data:
+  - symbol: N
+    name_en: newton
+    dimension: MLT-2
+    definition: "kg*m/s^2"
+  - symbol: J
+    name_en: joule
+    dimension: ML2T-2
+    definition: "kg*m^2/s^2"

@@ -1,79 +1,95 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Query
+from pathlib import Path
 import sqlite3
 import yaml
-from pathlib import Path
-from contextlib import closing
-import logging
+import numpy as np
+from contextlib import asynccontextmanager
 
-# Logging konfigurieren
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# ---------- Configuration ----------
+BASE_DIR = Path(__file__).parent
+DATA_DIR = BASE_DIR / "data"
+DB_DIR = BASE_DIR / "db"
 
-app = FastAPI(title="CommonsAPI", version="1.0.0")
+# ---------- Helper functions ----------
+def get_translation(key: str, lang: str = "en", **kwargs) -> str:
+    translations_db = DB_DIR / "utilities" / "translations.db"
+    try:
+        with sqlite3.connect(translations_db) as conn:
+            cursor = conn.execute(
+                f"SELECT {lang} FROM translations WHERE key = ?", 
+                (key,)
+            )
+            row = cursor.fetchone()
+            if row and row[0]:
+                return row[0].format(**kwargs)
+            else:
+                return key  # fallback to key if no translation found
+    except Exception:
+        return key  # fallback on any error
 
-BASE_DIR = Path(__file__).parent.resolve()
-
-DB_PATHS = {
-    "base_SI_units": BASE_DIR / "data" / "base_SI_units.db",
-    "derived_SI_units": BASE_DIR / "data" / "derived_SI_units.db",
-    "countries": BASE_DIR / "data" / "countries.db",
-    "languages": BASE_DIR / "data" / "languages.db",
-    "translations": BASE_DIR / "data" / "translations.db",
-    "prefixes": BASE_DIR / "data" / "prefixes.db"
-}
-
-@app.on_event("startup")
-def init_db():
-    """Initialisiert alle Datenbanken beim Serverstart"""
-    for name, db_path in DB_PATHS.items():
-        schema_path = BASE_DIR / "schemas" / f"{name}_schema.yaml"
-        if not schema_path.exists():
-            logger.warning(f"Schema {schema_path} nicht gefunden, überspringe Tabelle {name}")
-            continue
-        with open(schema_path, 'r', encoding='utf-8') as f:
-            config = yaml.safe_load(f)
-        with closing(sqlite3.connect(db_path)) as conn:
-            cursor = conn.cursor()
-            columns = []
-            for field in config['fields']:
-                column_def = f"{field['name']} {field['type']}"
-                if field.get('unique'):
-                    column_def += " UNIQUE"
-                columns.append(column_def)
-            create_sql = f"CREATE TABLE IF NOT EXISTS {name} ({', '.join(columns)})"
-            cursor.execute(create_sql)
-            conn.commit()
-            logger.info(f"Tabelle {name} in {db_path} initialisiert")
-
-def create_get_all_endpoint(table: str, db_path: Path):
-    @app.get(f"/{table}", tags=[table])
-    def get_all():
+def deserialize(value):
+    """Deserialize BLOBs to Python-object"""
+    if isinstance(value, bytes):
         try:
-            with closing(sqlite3.connect(db_path)) as conn:
-                cursor = conn.execute(f"SELECT * FROM {table}")
-                columns = [desc[0] for desc in cursor.description]
-                rows = cursor.fetchall()
-                logger.info(f"{table}: {len(rows)} Einträge gefunden")
-                return [dict(zip(columns, row)) for row in rows]
-        except sqlite3.Error as e:
-            logger.error(f"Datenbankfehler in {table}: {str(e)}")
-            raise HTTPException(500, detail=f"Datenbankfehler: {str(e)}")
+            return np.frombuffer(value, dtype=np.float64).tolist()
+        except Exception:
+            return "<BLOB>"
+    return value
 
-# Dynamische Endpunkte für alle Tabellen
-for schema_file in (BASE_DIR / "schemas").glob("*_schema.yaml"):
-    with open(schema_file, 'r', encoding='utf-8') as f:
-        config = yaml.safe_load(f)
-    table = config.get("table")
-    db_path = DB_PATHS.get(table)
-    if table and db_path:
-        create_get_all_endpoint(table, db_path)
-        logger.info(f"Endpunkt für Tabelle {table} registriert")
+def get_db_path(data_file: Path) -> Path:
+    """DB path from YAML-file (like autoschema.py)"""
+    rel_path = data_file.relative_to(DATA_DIR)
+    db_name = data_file.stem.replace("_data", "") + ".db"
+    return DB_DIR / rel_path.parent / db_name
 
-# Beispiel für einen manuellen Endpunkt
+# ---------- Router-generation ----------
+def create_router_for_file(data_file: Path) -> APIRouter:
+    router = APIRouter()
+    db_path = get_db_path(data_file)
+    table_name = data_file.stem.replace("_data", "")
+
+    @router.get("/")
+    def get_all(lang: str = Query("en")):
+        try:
+            with sqlite3.connect(db_path) as conn:
+                cursor = conn.execute(f"SELECT * FROM {table_name}")
+                columns = [col[0] for col in cursor.description]
+                return [
+                    {col: deserialize(val) for col, val in zip(columns, row)}
+                    for row in cursor.fetchall()
+                ]
+        except sqlite3.OperationalError as e:
+            detail = get_translation("DATABASE_ERROR", lang, error=str(e))
+            raise HTTPException(500, detail=detail)
+
+    return router
+
+# ---------- Lifespan event for router registration ----------
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Registration of endpoints for all YAML-files"""
+    for data_file in DATA_DIR.rglob("*_data.yaml"):
+        # Create API-path and replace backslashes by normal slashes
+        endpoint_path = str(data_file.relative_to(DATA_DIR).with_name(data_file.stem.replace("_data", "")))
+        endpoint_path = endpoint_path.replace("\\", "/")  
+
+        # Create Router and register
+        router = create_router_for_file(data_file)
+        app.include_router(
+            router,
+            prefix=f"/{endpoint_path}",
+            tags=[endpoint_path.split("/")[0]]  # category (e.g. 'utilities')
+        )
+        print(f"Registered route: /{endpoint_path}")
+
+    yield  # FastAPI requires yield in lifespan context
+
+app = FastAPI(title="ComAPIs", version="1.0.0", lifespan=lifespan)
+
+# ---------- Root-Endpoint ----------
 @app.get("/")
 def root():
     return {
-        "message": "CommonsAPI läuft!",
-        "version": app.version,
-        "endpoints": [route.path for route in app.routes]
+        "message": "ComAPIs is up and running!",
+        "endpoints": [route.path for route in app.routes if route.path != "/"]
     }

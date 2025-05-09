@@ -1,0 +1,16 @@
+fields:
+- name: symbol
+  type: TEXT
+  type_params: []
+- name: name_en
+  type: TEXT
+  type_params: []
+- name: factor
+  type: INTEGER
+  type_params: []
+- name: unit_symbol
+  type: TEXT
+  type_params: []
+metadata:
+  private: false
+table: prefixes

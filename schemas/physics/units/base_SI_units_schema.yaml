@@ -1,0 +1,13 @@
+fields:
+- name: symbol
+  type: TEXT
+  type_params: []
+- name: name_en
+  type: TEXT
+  type_params: []
+- name: dimension
+  type: TEXT
+  type_params: []
+metadata:
+  private: false
+table: base_SI_units

@@ -1,0 +1,94 @@
+metadata:
+  filename: languages_data.yaml
+  folder: utilities
+  description: This file contains data about various languages, including their codes,
+    names in English and native scripts, and writing directions.
+  version: 1.0.0
+  created_at: '2025-05-08T15:00:00Z'
+  author: Max Mustermann
+  source: https://doi.org/10.xxxx/abc123
+data:
+- en: DATABASE_ERROR
+  de: DATABASE_ERROR
+  fr: _ERREUR DE BASE DE DONNÉES
+  it: DATABASE_ERROR
+  es: DATABASE_ERROR
+  zh: 数据错误
+- en: Dimension {dim_level} expects {expected}, got {actual}
+  de: Größe {dim_level} erwartet {expected}, bekam {actual}
+  fr: Dimension {dim_level} attend {expected}, obtenu {actual}
+  it: Dimensione {dim_level} si aspetta {expected}, ottenuto {actual}
+  es: Dimension {dim_level} espera {expected}, tiene {actual}
+  zh: 尺寸 {dim_level} 期望 {expected}, 得到 {actual}
+- en: Each row must have {cols} columns
+  de: Jede Zeile muss {cols} Spalten haben
+  fr: Chaque ligne doit avoir des colonnes {cols}
+  it: Ogni riga deve avere colonne {cols}
+  es: Cada fila debe tener columnas {cols}
+  zh: 每行必须有 x60x 列
+- en: 'Error processing {path}: {error}'
+  de: 'Fehlerbearbeitung {path}: {error}'
+  fr: 'Traitement des erreurs {path} : {error}'
+  it: 'Elaborazione errori {path}: {error}'
+  es: 'Procesamiento de error {path}: {error}'
+  zh: '处理 xx20x: {error}出错'
+- en: 'Error reading version file: {e}'
+  de: 'Fehler beim Lesen der Versionsdatei: {e}'
+  fr: 'Erreur lors de la lecture du fichier version : {e}'
+  it: 'File della versione di lettura di errore: {e}'
+  es: 'Archivo de la versión de error: {e}'
+  zh: '读取版本文件出错: {e}'
+- en: 'Files found:'
+  de: 'Gefundene Dateien:'
+  fr: 'Fichiers trouvés :'
+  it: 'I file trovati:'
+  es: 'Archivos encontrados:'
+  zh: '找到的文件 :'
+- en: Matrix expects {rows} rows
+  de: Matrix erwartet {rows} Zeilen
+  fr: Matrix attend {rows} lignes
+  it: Matrix si aspetta {rows} righe
+  es: Matrix espera filas {rows}
+  zh: 矩阵期望 {rows} 行
+- en: 'NumPy is not installed! Install with '
+  de: NumPy ist nicht installiert! Installieren mit
+  fr: NumPy n'est pas installé ! Installer avec
+  it: NumPy non è installato! Installare con
+  es: NumPy no está instalado! Instalar con
+  zh: NumPy没有安装! 安装方式
+- en: 'Processing file: {path}'
+  de: 'Verarbeitungsdatei: {path}'
+  fr: 'Fichier de traitement : {path}'
+  it: 'File di elaborazione: {path}'
+  es: 'Archivo de procesamiento: {path}'
+  zh: '处理文件: {path}'
+- en: Quaternion expects exactly 4 elements
+  de: Quaternion erwartet genau 4 Elemente
+  fr: Quaternion attend exactement 4 éléments
+  it: Quaternion si aspetta esattamente 4 elementi
+  es: Quaternion espera exactamente 4 elementos
+  zh: Quaternion 期望精确的4个元素
+- en: Subclasses must implement this
+  de: Unterklassen müssen dies umsetzen
+  fr: Les sous-classes doivent mettre en œuvre cette
+  it: I sottoclassi devono applicarlo
+  es: Subclases must implement this
+  zh: 子类必须执行此
+- en: Vectore expects {expected_length} elements, got {len(value)}
+  de: Vectore erwartet {expected_length} Elemente, bekam {len(value)}
+  fr: Vectore attend des éléments {expected_length}, obtenu {len(value)}
+  it: Vectore si aspetta {expected_length} elementi, ottenuto {len(value)}
+  es: Vectore espera elementos {expected_length}, tiene {len(value)}
+  zh: 矢量预期为{expected_length}元素,得到{len(value)}
+- en: no data to create schemas
+  de: keine daten zur erstellung von schemas
+  fr: aucune donnée pour créer des schémas
+  it: nessun dato per creare schemi
+  es: no datos para crear esquemas
+  zh: 没有创建计划的数据
+- en: unequal lengths in matrix
+  de: ungleiche längen in matrix
+  fr: longueurs inégales dans la matrice
+  it: lunghezze uguali in matrice
+  es: longitudes desiguales en la matriz
+  zh: 矩阵中的等长

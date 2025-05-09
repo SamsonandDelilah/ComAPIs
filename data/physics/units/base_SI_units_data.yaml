@@ -1,4 +1,11 @@
-base_SI_units:
+metadata:
+  filename: base_SI_units_data.yaml
+  version: "1.0.0"
+  created_at: "2025-05-08T15:00:00Z"
+  author: "Max Mustermann"
+  source: "https://doi.org/10.xxxx/abc123"
+
+data:
   - symbol: m
     name_en: metre
     dimension: L
@@ -13,7 +20,7 @@ base_SI_units:
     dimension: I
   - symbol: K
     name_en: kelvin
-    dimension: U+0398 
+    dimension: "Θ" # "\\U+0398" thermodynamic temperature 
   - symbol: mol
     name_en: mole
     dimension: N

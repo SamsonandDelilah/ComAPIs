@@ -1,0 +1,13 @@
+fields:
+- name: key
+  type: TEXT
+  type_params: []
+- name: en
+  type: TEXT
+  type_params: []
+- name: de
+  type: TEXT
+  type_params: []
+metadata:
+  private: false
+table: translations

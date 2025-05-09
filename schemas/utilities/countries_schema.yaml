@@ -1,0 +1,22 @@
+fields:
+- name: iso2
+  type: TEXT
+  type_params: []
+- name: iso3
+  type: TEXT
+  type_params: []
+- name: name_en
+  type: TEXT
+  type_params: []
+- name: region
+  type: TEXT
+  type_params: []
+- name: currency
+  type: TEXT
+  type_params: []
+- name: languages
+  type: TEXT
+  type_params: []
+metadata:
+  private: false
+table: countries

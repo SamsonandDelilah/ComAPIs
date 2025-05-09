@@ -1,0 +1,5 @@
+program_files:
+  - main.py
+  - scripts/autoschema.py
+  #- subdir/other_module.py
+  # Add more files as your project grows

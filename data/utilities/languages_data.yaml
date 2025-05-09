@@ -1,0 +1,44 @@
+metadata:
+  filename: languages_data.yaml
+  description: "This file contains data about various languages, including their codes, names in English and native scripts, and writing directions."
+  version: "1.0.0"
+  created_at: "2025-05-08T15:00:00Z"
+  author: "Max Mustermann"
+  source: "https://doi.org/10.xxxx/abc123"
+
+data:
+  - code: en
+    name_en: English (UK)
+    name_native: English
+    script: Latn
+    direction: ltr
+  - code: de
+    name_en: German
+    name_native: Deutsch
+    script: Latn
+    direction: ltr
+  - code: fr
+    name_en: French
+    name_native: Français
+    script: Latn
+    direction: ltr
+  - code: it
+    name_en: Italian
+    name_native: Italiano
+    script: Latn
+    direction: ltr
+  - code: es
+    name_en: Spanish
+    name_native: Español
+    script: Latn
+    direction: ltr
+  - code: zh
+    name_en: Chinese
+    name_native: 中文
+    script: Hans
+    direction: ltr
+  # - code: ar
+  #   name_en: Arabic
+  #   name_native: العربية
+  #   script: Arab
+  #   direction: rtl

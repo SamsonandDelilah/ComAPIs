@@ -1,0 +1,19 @@
+fields:
+- name: code
+  type: TEXT
+  type_params: []
+- name: name_en
+  type: TEXT
+  type_params: []
+- name: name_native
+  type: TEXT
+  type_params: []
+- name: script
+  type: TEXT
+  type_params: []
+- name: direction
+  type: TEXT
+  type_params: []
+metadata:
+  private: false
+table: languages

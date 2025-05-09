@@ -22,13 +22,18 @@ SELECT
 .idea/
 
 # Backup- und temporäre Dateien
-main_backup.py
+*_backup.py
+*_backup.yaml
 reset_base_SI_units.py
 replace_tabs.py
 *.bak
 *.tmp
+test_*.*
 
 # Sonstige
 .DS_Store
 .env
 .schema
+
+# Version control DO NOT ADD!
+# .version_control.yaml
