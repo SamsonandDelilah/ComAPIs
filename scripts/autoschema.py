@@ -1,4 +1,4 @@
-import sys
+import os, sys
 import hashlib
 import json
 import logging
@@ -16,6 +16,7 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 
+        
 # Internationalization (i18n) - translations
 
 def get_translation(key: str, lang: str = "en", **kwargs) -> str:
@@ -29,26 +30,41 @@ def get_translation(key: str, lang: str = "en", **kwargs) -> str:
             )
             row = cursor.fetchone()
             return row[0].format(**kwargs) if row else key
-    except Exception:
-        return key  # Fallback to key in cae of errors
+    except Exception as e:
+        logging.error(f"Translation for key '{key}' failed: {e}")
+        return key.format(**kwargs)  # Fallback to key in case of errors
 
 
-# check numpy installed
+# === Check if NumPy is installed and install dynamically if missing ===
 try:
     import numpy as np
 except ImportError:
     logging.error(get_translation("NumPy is not installed! Install with 'pip install numpy'"))
-    sys.exit(1)
+    if input("Do you want to install NumPy now? (y/n): ").strip().lower() == "y":
+        import subprocess
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy"])
+            import numpy as np
+            logging.info(get_translation("NumPy installed successfully."))
+        except Exception as e:
+            logging.error(get_translation("Failed to install NumPy: {error}", error=str(e)))
+            sys.exit(1)
+    else:
+        sys.exit(1)
 
 class DataProcessor:
     """Base class for data processing."""
     SUPPORTED_SUFFIXES = ["_data.yaml", "_data.yml", "_data.json", "_data.csv"]
 
-    def __init__(self, data_dir: str = r"I:\ComAPIs\data", schema_dir: str = "schemas", db_dir: str = "db"):
+    def __init__(self, 
+    data_dir: str = os.getenv("DATA_DIR", "data"), 
+    schema_dir: str = os.getenv("SCHEMA_DIR", "schemas"),
+    db_dir: str = os.getenv("DB_DIR", "db"), 
+    version_file: str = os.getenv("VERSION_FILE", ".version_control.yaml")):
         self.data_dir = Path(data_dir)
         self.schema_dir = Path(schema_dir)
         self.db_dir = Path(db_dir)
-        self.version_file = Path(".version_control.yaml")
+        self.version_file = Path(version_file)
         self.version_data = self._load_version_data()
 
         # Ordner erstellen
@@ -57,12 +73,17 @@ class DataProcessor:
         self.db_dir.mkdir(parents=True, exist_ok=True)
 
     def _load_version_data(self) -> Dict:
+        """Load version control data."""
         if self.version_file.exists():
             try:
                 with open(self.version_file, "r", encoding="utf-8") as f:
                     return yaml.safe_load(f) or {}
+            except FileNotFoundError:
+                logging.error(get_translation("Version control file not found: {file}", file=self.version_file))
+            except yaml.YAMLError as e:
+                logging.error(get_translation("Error parsing version file: {e}", e=str(e)))
             except Exception as e:
-                logging.error(get_translation("Error reading version file: {e}", e=str(e)))
+                logging.error(get_translation("Unexpected error reading version file: {e}", e=str(e)))
         return {}
 
     def _save_version_data(self):
@@ -116,8 +137,30 @@ class DataProcessor:
         return hasher.hexdigest()
 
     def _process_file(self, data_path: Path):
-        """Processing single file (abstract method)."""
-        raise NotImplementedError(get_translation("Subclasses must implement this"))
+        """Process a single file."""
+        logging.info(get_translation("Processing file: {path}", path=data_path))
+        try:
+            # Load data
+            data = self._load_data(data_path)
+
+            # Generate schema or load existing
+            schema = self._get_or_create_schema(data_path, data)
+
+            # Validation
+            for entry in data:
+                self.validator.validate_entry(entry, schema)
+
+            # Update database
+            db_path = self._data_to_db_path(data_path)
+            self.create_table(schema, db_path)
+            self.insert_data(data, schema, db_path)
+        except (FileNotFoundError, ValueError) as e:
+            logging.error(get_translation("Error processing {path}: {error}", path=data_path, error=str(e)))
+        except sqlite3.DatabaseError as e:
+            logging.error(get_translation("Database error processing {path}: {error}", path=data_path, error=str(e)))
+        except Exception as e:
+            logging.error(get_translation("Unexpected error processing {path}: {error}", path=data_path, error=str(e)))
+            raise
 
 class SchemaHandler(DataProcessor):
     def _infer_type(self, value: Any) -> str:
@@ -253,6 +296,41 @@ class Validator:
             field_type = field.get("type")
             type_params = field.get("type_params", [])
             
+            # --- TEXT validation ---
+            if field_type == "TEXT":
+                if value is not None and not (isinstance(value, str) and value.isprintable()):
+                    logging.error(get_translation(
+                        "Field '{field}' contains non-printable or invalid characters: {value}",
+                        field=field["name"],
+                        value=repr(value)
+                    ))
+                    raise ValueError(
+                        get_translation(
+                            "Invalid TEXT value in field '{field}': {value}",
+                            field=field["name"],
+                            value=repr(value)
+                        )
+                    )
+
+            # --- INT/REAL validation ---
+            if field_type in ("INT", "REAL", "INTEGER"):
+                if value is not None and not isinstance(value, (int, float)):
+                    logging.error(get_translation(
+                        "Field '{field}' expected {ftype}, got {vtype}: {value}",
+                        field=field["name"],
+                        ftype=field_type,
+                        vtype=type(value).__name__,
+                        value=repr(value)
+                    ))
+                    raise ValueError(
+                        get_translation(
+                            "Invalid {ftype} value in field '{field}': {value}",
+                            ftype=field_type,
+                            field=field["name"],
+                            value=repr(value)
+                        )
+                    )
+                
             if field_type == "VEC":
                 Validator._validate_vector(value, type_params)
             elif field_type == "MATRIX":
@@ -314,30 +392,54 @@ class AutoSchemaDB(SchemaHandler, DatabaseHandler):
         self.validator = Validator()
 
     def _process_file(self, data_path: Path):
-        """Precessing single file."""
+        """Processing single file."""
         logging.info(get_translation("Processing file: {path}", path=data_path))
-        
-        # Load data
+
         try:
             data = self._load_data(data_path)
-            
-            # Generate schema or load
             schema = self._get_or_create_schema(data_path, data)
-            
-            # Validation
+
+            validation_errors = []
+            valid_entries = []
             for entry in data:
-                self.validator.validate_entry(entry, schema)
-            
-            # update database
-            db_path = self._data_to_db_path(data_path)
-            self.create_table(schema, db_path)
-            self.insert_data(data, schema, db_path)
-            
+                try:
+                    self.validator.validate_entry(entry, schema)
+                    valid_entries.append(entry)
+                except ValueError as ve:
+                    logging.error(get_translation(
+                        "Validation error in file {path}, entry {entry}: {error}",
+                        path=data_path,
+                        entry=entry,
+                        error=str(ve)
+                    ))
+                    validation_errors.append((entry, str(ve)))
+                    # Continue to next entry
+
+            if validation_errors:
+                print(f"\nValidation errors found in {data_path}:")
+                for entry, error in validation_errors:
+                    print(f"  Entry: {entry}\n    Error: {error}")
+                # Optionally, skip DB update if there are errors:
+                # return
+
+            # Proceed with valid entries only
+            if valid_entries:
+                db_path = self._data_to_db_path(data_path)
+                self.create_table(schema, db_path)
+                self.insert_data(valid_entries, schema, db_path)
+            else:
+                logging.warning(get_translation(
+                    "No valid entries to insert for {path}", path=data_path
+                ))
+
         except Exception as e:
-            logging.error(get_translation("Error processing {path}: {error}", 
-                path=data_path, 
-                error=str(e)))
+            logging.error(get_translation(
+                "Error processing {path}: {error}",
+                path=data_path,
+                error=str(e)
+            ))
             raise
+
     
     def _load_data(self, data_path: Path) -> List[Dict]:
         """Loads data from various file formats."""
