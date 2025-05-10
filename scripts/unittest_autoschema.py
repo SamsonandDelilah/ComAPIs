@@ -1,5 +1,5 @@
 """ 
-Make sure your virtual environment (venv) is active with command ".\venv\Scripts\Activate.ps1", and pytest is installed.
+Make sure your virtual environment (venv) is active with command ".\venv\Scripts\Activate.ps1" or "activate", and pytest is installed.
 """
 
 # === test_autoschema.py ===

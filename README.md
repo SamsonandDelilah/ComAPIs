@@ -9,6 +9,26 @@ Our mission is to create a **Wikipedia for Open Source APIs**: a freely availabl
 We believe that access to reliable, easy-to-use APIs should be **open and free** for all, empowering innovation, education, and discovery across disciplines.
 
 Contact me via e-mail.
+## 📂 Folder Structure
+
+The following is the folder structure of the ComAPIs project:
+
+📁 ComAPIs
+├── 📁 scripts
+│   ├── 📄 autoschema.py       # Script for schema generation
+│   ├── 📄 other_script.py     # [Placeholder for other script files]
+│
+├── 📁 tests
+│   ├── 📄 test_autoschema.py  # Unit tests for autoschema.py
+│   ├── 📄 test_other_script.py # Unit tests for other_script.py
+│
+├── 📁 docs
+│   ├── 📄 API_guide.md        # Documentation for API usage
+│   ├── 📄 setup_instructions.md # Project setup instructions
+│
+├── 📄 requirements.txt        # Python dependencies for the project
+├── 📄 README.md               # Project overview and usage guide
+├── 📄 .gitignore              # Ignored files and directories in Git
 
 ## What We Offer
 
