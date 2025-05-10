@@ -92,3 +92,81 @@ data:
   it: lunghezze uguali in matrice
   es: longitudes desiguales en la matriz
   zh: 矩阵中的等长
+- en: 'Field '
+  de: Feld
+  fr: Champ
+  it: Campo
+  es: Campo
+  zh: 外地
+- en: 'Invalid TEXT value in field '
+  de: Invalider TEXT-Wert im Feld
+  fr: Valeur TEXTE non valable dans le champ
+  it: Valore TEXT non valido in campo
+  es: Valor TEXTO inválido en el campo
+  zh: 字段无效的 TEXT 值
+- en: 'Invalid {ftype} value in field '
+  de: Invalid {ftype} Wert im Feld
+  fr: Valeur {ftype} non valide dans le champ
+  it: Valore non valido {ftype} nel campo
+  es: Valor {ftype} inválido en el campo
+  zh: 字段内无效的 x60x 值
+- en: No valid entries to insert for {path}
+  de: Keine gültigen Einträge für {path}
+  fr: Aucune entrée valide à insérer pour {path}
+  it: Nessuna voce valida per inserire {path}
+  es: No hay entradas válidas para insertar para {path}
+  zh: Xx0x 没有插入的有效条目
+- en: 'Validation error in file {path}, entry {entry}: {error}'
+  de: 'Validierungsfehler in Datei {path}, Eintrag {entry}: {error}'
+  fr: 'Erreur de validation dans le fichier {path}, entrée {entry}: {error}'
+  it: 'Errore di convalida nel file {path}, voce {entry}: {error}'
+  es: 'Error de validación en el archivo {path}, entrada {entry}: {error}'
+  zh: '文件 x{path}中的校验错误, 第 xx11x: {error}'
+- en: 'Database error processing {path}: {error}'
+  de: 'Datenbankfehlerverarbeitung {path}: {error}'
+  fr: 'Traitement des erreurs dans la base de données {path}: {error}'
+  it: 'Elaborazione errori database {path}: {error}'
+  es: 'Tratamiento de errores de base {path}: {error}'
+  zh: '数据库错误处理 {path}: {error}'
+- en: 'Error parsing version file: {e}'
+  de: 'Fehlerparsing-Versionsdatei: {e}'
+  fr: 'Erreur d''analyse du fichier version : {e}'
+  it: 'File di versione di parsing errore: {e}'
+  es: 'Archivo de la versión de error: {e}'
+  zh: '解析版本文件出错: {e}'
+- en: 'Failed to install NumPy: {error}'
+  de: 'Nicht installiert NumPy: {error}'
+  fr: 'Impossible d''installer NumPy: {error}'
+  it: 'Non installato NumPy: {error}'
+  es: 'Failed to install NumPy: {error}'
+  zh: '安装 NumPy 失败: {error}'
+- en: NumPy installed successfully.
+  de: NumPy installiert erfolgreich.
+  fr: NumPy installé avec succès.
+  it: NumPy installato con successo.
+  es: NumPy instalado con éxito.
+  zh: NumPy 成功安装 .
+- en: 'Unexpected error processing {path}: {error}'
+  de: 'Unerwartete Fehlerverarbeitung {path}: {error}'
+  fr: 'Traitement des erreurs inattendues {path}: {error}'
+  it: 'Elaborazione di errore non prevista {path}: {error}'
+  es: 'Tratamiento de errores no esperado {path}: {error}'
+  zh: '意外错误处理 {path}: {error}'
+- en: 'Unexpected error reading version file: {e}'
+  de: 'Unerwartete Fehlerleseversionsdatei: {e}'
+  fr: 'Erreur inattendue de lecture du fichier de version : {e}'
+  it: 'File di versione di lettura di errore inaspettato: {e}'
+  es: 'Archivo de la versión de la lectura de errores inesperado: {e}'
+  zh: '非预期错误读取版本文件 : {e}'
+- en: 'Version control file not found: {file}'
+  de: 'Versionskontrolle Datei nicht gefunden: {file}'
+  fr: 'Fichier de contrôle de version introuvable : {file}'
+  it: 'File di controllo della versione non trovato: {file}'
+  es: 'Archivo de control de versiones no encontrado: {file}'
+  zh: '未找到版本控制文件 : {file}'
+- en: Vectore expects {expected_length} elements, got {actual_length}
+  de: Vectore erwartet {expected_length} Elemente, bekam {actual_length}
+  fr: Vectore attend des éléments {expected_length}, obtenu {actual_length}
+  it: Vectore si aspetta {expected_length} elementi, ottenuto {actual_length}
+  es: Vectore espera elementos {expected_length}, tiene {actual_length}
+  zh: 矢量预期为{expected_length}元素,得到{actual_length}

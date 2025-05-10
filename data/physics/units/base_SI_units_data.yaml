@@ -1,29 +1,66 @@
-metadata:
-  filename: base_SI_units_data.yaml
-  version: "1.0.0"
-  created_at: "2025-05-08T15:00:00Z"
-  author: "Max Mustermann"
-  source: "https://doi.org/10.xxxx/abc123"
-
-data:
+base:_SI_units_data:
   - symbol: m
     name_en: metre
     dimension: L
+    latex: "\\mathrm{m}"
+    latex_var: "l"
+    mathml: "<mi>m</mi>"
+    mathml_var: "<mi>l</mi>"
+    markdown: "$m$"
+    markdown_var: "$l$"
+    description: "Base SI unit of length"
   - symbol: kg
     name_en: kilogram
     dimension: M
+    latex: "\\mathrm{kg}"
+    latex_var: "m"
+    mathml: "<mi>kg</mi>"
+    mathml_var: "<mi>m</mi>"
+    markdown: "$kg$"
+    markdown_var: "$m$"
   - symbol: s
     name_en: second
     dimension: T
+    latex: "\\mathrm{s}"
+    latex_var: "t"
+    mathml: "<mi>s</mi>"
+    mathml_var: "<mi>t</mi>"
+    markdown: "$s$"
+    markdown_var: "$t$"
   - symbol: A
     name_en: ampere
     dimension: I
+    latex: "\\mathrm{A}"
+    latex_var: "I"
+    mathml: "<mi>A</mi>"
+    mathml_var: "<mi>I</mi>"
+    markdown: "$A$"
+    markdown_var: "$I$"
+    definition: |
   - symbol: K
     name_en: kelvin
-    dimension: "Θ" # "\\U+0398" thermodynamic temperature 
+    dimension: Θ
+    latex: "\\mathrm{K}"
+    latex_var: "T"
+    mathml: "<mi>K</mi>"
+    mathml_var: "<mi>T</mi>"
+    markdown: "$K$"
+    markdown_var: "$T$"
   - symbol: mol
     name_en: mole
     dimension: N
+    latex: "\\mathrm{mol}"
+    latex_var: "n"
+    mathml: "<mi>mol</mi>"
+    mathml_var: "<mi>n</mi>"
+    markdown: "$mol$"
+    markdown_var: "$n$"
   - symbol: cd
     name_en: candela
     dimension: J
+    latex: "\\mathrm{cd}"
+    latex_var: "I_v"
+    mathml: "<mi>cd</mi>"
+    mathml_var: "<msub><mi>I</mi><mi>v</mi></msub>"
+    markdown: "$cd$"
+    markdown_var: "$I_v$"

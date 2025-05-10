@@ -34,6 +34,7 @@ test_*.*
 .DS_Store
 .env
 .schema
+archive/
 
 # Version control DO NOT ADD!
 # .version_control.yaml

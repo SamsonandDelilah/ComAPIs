@@ -1,0 +1,4 @@
+data_dir: "data"
+schema_dir: "schemas"
+db_dir: "db"
+version_file: ".version_control.yaml"

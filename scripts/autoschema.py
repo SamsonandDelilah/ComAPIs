@@ -16,24 +16,75 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 
+logging.basicConfig(level=logging.DEBUG)
         
 # Internationalization (i18n) - translations
 
+# Load translations from YAML file
+def load_translations_from_yaml():
+    """
+    Load translations from a YAML file.
+    Expected file location: ../data/utilities/translations_data.yaml
+    """
+    yaml_path = Path(__file__).parent.parent / "data" / "utilities" / "translations_data.yaml"
+    try:
+        with open(yaml_path, "r", encoding="utf-8") as file:
+            logging.debug(f"Successfully loaded translations from YAML: {yaml_path}")
+            return yaml.safe_load(file)  # Load YAML content as a dictionary
+    except FileNotFoundError:
+        logging.error(f"YAML translation file not found at {yaml_path}.")
+        return {}
+    except Exception as e:
+        logging.error(f"Error loading YAML file: {e}")
+        return {}
+
+# Cache YAML translations globally for performance
+yaml_translations = load_translations_from_yaml()
+
 def get_translation(key: str, lang: str = "en", **kwargs) -> str:
-    """Get translations-DB."""
-    translations_db = Path(__file__).parent / "db" / "utilities" / "translations.db"
+    """
+    Get translations from the database or fall back to YAML.
+    :param key: Translation key to look up
+    :param lang: Language to translate to (default: 'en')
+    :param kwargs: Formatting arguments for the translation string
+    :return: Translated string or fallback
+    """
+    # Resolve the database path to an absolute path
+    translations_db = (Path(__file__).parent.parent / "db" / "utilities" / "translations.db").resolve()
+
+    # Debugging: Log the resolved paths
+    logging.debug(f"Resolved translations_db path: {translations_db}")
+    
+    # Attempt to fetch from SQLite database
     try:
         with sqlite3.connect(translations_db) as conn:
+            logging.debug("Successfully connected to the translations database.")
             cursor = conn.execute(
                 f"SELECT {lang} FROM translations WHERE key = ?", 
                 (key,)
             )
             row = cursor.fetchone()
-            return row[0].format(**kwargs) if row else key
+            if row:
+                logging.debug(f"Translation found for key '{key}' in database: {row[0]}")
+                return row[0].format(**kwargs)
+    except sqlite3.OperationalError as e:
+        logging.error(f"OperationalError: Could not open database file: {e}")
     except Exception as e:
-        logging.error(f"Translation for key '{key}' failed: {e}")
-        return key.format(**kwargs)  # Fallback to key in case of errors
+        logging.error(f"Unexpected error for key '{key}': {e}")
 
+    # Fallback to YAML if database lookup fails
+    if key in yaml_translations:
+        lang_translation = yaml_translations[key].get(lang)
+        if lang_translation:
+            logging.debug(f"Translation found for key '{key}' in YAML: {lang_translation}")
+            return lang_translation.format(**kwargs)
+        else:
+            logging.warning(f"No translation found for key '{key}' in language '{lang}'. Using fallback.")
+            return key.format(**kwargs)
+    else:
+        logging.warning(f"No translation found for key '{key}'. Using fallback.")
+        return key.format(**kwargs)
+    
 
 # === Check if NumPy is installed and install dynamically if missing ===
 try:
@@ -291,26 +342,72 @@ class Validator:
     """Validates data against schemas."""
     @staticmethod
     def validate_entry(entry: Dict, schema: Dict):
+        """
+        Validates a single entry against the schema provided.
+        """
         for field in schema["fields"]:
             value = entry.get(field["name"])
             field_type = field.get("type")
             type_params = field.get("type_params", [])
-            
+
             # --- TEXT validation ---
             if field_type == "TEXT":
-                if value is not None and not (isinstance(value, str) and value.isprintable()):
-                    logging.error(get_translation(
-                        "Field '{field}' contains non-printable or invalid characters: {value}",
-                        field=field["name"],
-                        value=repr(value)
-                    ))
-                    raise ValueError(
-                        get_translation(
+                if value is not None:
+                    # Check if the value is a string
+                    if not isinstance(value, str):
+                        logging.error(get_translation(
+                            "Field '{field}' expected TEXT but got {vtype}: {value}",
+                            field=field["name"],
+                            vtype=type(value).__name__,
+                            value=repr(value)
+                        ))
+                        raise ValueError(get_translation(
                             "Invalid TEXT value in field '{field}': {value}",
                             field=field["name"],
                             value=repr(value)
-                        )
-                    )
+                        ))
+
+                    # Check for malicious inputs (control/non-printable characters)
+                    if any(c in value for c in ("\x00", "\x1a", "\x1b")):
+                        logging.error(get_translation(
+                            "Field '{field}' contains potentially malicious characters: {value}",
+                            field=field["name"],
+                            value=repr(value)
+                        ))
+                        raise ValueError(get_translation(
+                            "Invalid TEXT value in field '{field}': {value}",
+                            field=field["name"],
+                            value=repr(value)
+                        ))
+
+                    # Check printable characters while allowing valid escaped sequences
+                    try:
+                        decoded_value = value.encode('utf-8').decode('unicode_escape')
+                        if not decoded_value.isprintable():
+                            logging.error(get_translation(
+                                "Field '{field}' contains non-printable characters: {value}",
+                                field=field["name"],
+                                value=repr(value)
+                            ))
+                            raise ValueError(get_translation(
+                                "Invalid TEXT value in field '{field}': {value}",
+                                field=field["name"],
+                                value=repr(value)
+                            ))
+                    except UnicodeDecodeError as e:
+                        logging.error(get_translation(
+                            "Field '{field}' contains invalid Unicode: {value}, Error: {error}",
+                            field=field["name"],
+                            value=repr(value),
+                            error=str(e)
+                        ))
+                        raise ValueError(get_translation(
+                            "Invalid TEXT value in field '{field}': {value}",
+                            field=field["name"],
+                            value=repr(value)
+                        ))
+
+                continue  # Skip to next field if valid
 
             # --- INT/REAL validation ---
             if field_type in ("INT", "REAL", "INTEGER"):
@@ -322,15 +419,14 @@ class Validator:
                         vtype=type(value).__name__,
                         value=repr(value)
                     ))
-                    raise ValueError(
-                        get_translation(
-                            "Invalid {ftype} value in field '{field}': {value}",
-                            ftype=field_type,
-                            field=field["name"],
-                            value=repr(value)
-                        )
-                    )
-                
+                    raise ValueError(get_translation(
+                        "Invalid {ftype} value in field '{field}': {value}",
+                        ftype=field_type,
+                        field=field["name"],
+                        value=repr(value)
+                    ))
+
+            # Handle other types (VECTOR, MATRIX, etc.)
             if field_type == "VEC":
                 Validator._validate_vector(value, type_params)
             elif field_type == "MATRIX":
@@ -338,15 +434,26 @@ class Validator:
             elif field_type == "TENSOR":
                 Validator._validate_tensor(value, type_params)
             elif field_type == "QUATERNION":
-                Validator._validate_quaternion(value, type_params)      
-
+                Validator._validate_quaternion(value, type_params)
+            
     @staticmethod
     def _validate_vector(value: list, params: list):
+        """
+        Validate a vector entry.
+        Raises a ValueError if the length of the vector does not match the expected length.
+
+        :param value: The vector to validate.
+        :param params: The expected parameters (e.g., [expected_length]).
+        """
         expected_length = params[0] if params else 0
-        if len(value) != expected_length:
-            raise ValueError(get_translation("Vectore expects {expected_length} elements, got {len(value)}", 
-                expected_length=expected_length, 
-                actual_length=len(value)))
+        actual_length = len(value)
+
+        if actual_length != expected_length:
+            raise ValueError(get_translation(
+                "Vectore expects {expected_length} elements, got {actual_length}",
+                expected_length=expected_length,
+                actual_length=actual_length  # Pass actual_length explicitly
+            ))
 
     @staticmethod
     def _validate_matrix(value: list, params: list):
