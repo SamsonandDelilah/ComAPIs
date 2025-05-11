@@ -1,11 +1,20 @@
 fields:
-- name: key
-  type: TEXT
-  type_params: []
 - name: en
   type: TEXT
   type_params: []
 - name: de
+  type: TEXT
+  type_params: []
+- name: fr
+  type: TEXT
+  type_params: []
+- name: it
+  type: TEXT
+  type_params: []
+- name: es
+  type: TEXT
+  type_params: []
+- name: zh
   type: TEXT
   type_params: []
 metadata:

@@ -9,7 +9,8 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Union
 
 
-# Logging-configuration
+# === Logging-configuration ===
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -18,7 +19,7 @@ logging.basicConfig(
 
 logging.basicConfig(level=logging.DEBUG)
         
-# Internationalization (i18n) - translations
+# === Internationalization (i18n) - translations ===
 
 # Load translations from YAML file
 def load_translations_from_yaml():
@@ -103,6 +104,7 @@ except ImportError:
     else:
         sys.exit(1)
 
+# === DataProcessor class ===
 class DataProcessor:
     """Base class for data processing."""
     SUPPORTED_SUFFIXES = ["_data.yaml", "_data.yml", "_data.json", "_data.csv"]
@@ -112,16 +114,24 @@ class DataProcessor:
     schema_dir: str = os.getenv("SCHEMA_DIR", "schemas"),
     db_dir: str = os.getenv("DB_DIR", "db"), 
     version_file: str = os.getenv("VERSION_FILE", ".version_control.yaml")):
-        self.data_dir = Path(data_dir)
-        self.schema_dir = Path(schema_dir)
-        self.db_dir = Path(db_dir)
-        self.version_file = Path(version_file)
-        self.version_data = self._load_version_data()
+        """
+        Initialize the DataProcessor with paths relative to the root directory.
+        """    
+        root_dir = Path(__file__).parent.parent
+        self.data_dir = root_dir / data_dir
+        self.schema_dir = root_dir / schema_dir
+        self.db_dir = root_dir / db_dir
+        self.version_file = root_dir / version_file  # Always reference the root directory
+        self.version_data = self._load_version_data()       
 
-        # Ordner erstellen
+
+        # Create directories if they don't exist
         self.data_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Data directory created or exists: {self.data_dir}")
         self.schema_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Schema directory created or exists: {self.schema_dir}")
         self.db_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Database directory created or exists: {self.db_dir}")
 
     def _load_version_data(self) -> Dict:
         """Load version control data."""
@@ -149,10 +159,12 @@ class DataProcessor:
         return files
 
     def process_all(self):
-        """Process all data fiels"""
+        """Process all data files."""
         files = self.find_data_files()
-        print(get_translation("Files found:") + f": {files}")
-        for data_path in self.find_data_files():
+        #print("Files found for processing:")
+        for file in files:
+            print(f"  - {file}")  # Debug: Print all files to be processed
+        for data_path in files:
             if self._needs_processing(data_path):
                 self._process_file(data_path)
         self._save_version_data()
@@ -213,6 +225,7 @@ class DataProcessor:
             logging.error(get_translation("Unexpected error processing {path}: {error}", path=data_path, error=str(e)))
             raise
 
+# === ScheamHandler class ===
 class SchemaHandler(DataProcessor):
     def _infer_type(self, value: Any) -> str:
         """Recognises complex type from data structures."""
@@ -266,27 +279,35 @@ class SchemaHandler(DataProcessor):
         return []
 
     def generate_schema(self, data: List[Dict], data_path: Path) -> Dict:
-        """Generates schema from data."""
+        """
+        Generates schema from data.
+
+        :param data: List of data entries (e.g., from YAML).
+        :param data_path: Path to the source data file.
+        :return: A dictionary representing the schema.
+        """
         if not data:
             raise ValueError(get_translation("no data to create schemas"))
-            
-        sample = data[0] if isinstance(data, list) else data
-        fields = []
-        for key, value in sample.items():
-            field_type = self._infer_type(value)
-            fields.append({
-                "name": key,
-                "type": field_type,
-                "type_params": self._infer_type_params(value, field_type)
-            })
-        
+
+        # Collect all possible fields across all entries
+        fields_set = {}
+        for entry in data:
+            for key, value in entry.items():
+                if key not in fields_set:
+                    field_type = self._infer_type(value)
+                    fields_set[key] = {
+                        "name": key,
+                        "type": field_type,
+                        "type_params": self._infer_type_params(value, field_type)
+                    }
+
         return {
             "table": data_path.stem.replace("_data", ""),
-            "fields": fields,
+            "fields": list(fields_set.values()),  # Convert to list
             "metadata": {"private": False}
         }
 
-
+# === DatabaseHandler class ===
 class DatabaseHandler(DataProcessor):
     """Handling of databases."""
     def create_table(self, schema: Dict, db_path: Path):
@@ -338,6 +359,7 @@ class DatabaseHandler(DataProcessor):
             cursor.executemany(insert_sql, entries)
             conn.commit()
 
+# === Validator class ===
 class Validator:
     """Validates data against schemas."""
     @staticmethod
@@ -491,13 +513,16 @@ class Validator:
         # norm = sum(x**2 for x in value)
         # if not abs(norm - 1.0) < 1e-6:
         #     raise ValueError("Quaternion muss Einheitsnorm haben")
-                    
+
+# === class AutoSchemaDB ===
 class AutoSchemaDB(SchemaHandler, DatabaseHandler):
     """Main class for automatic schema and DB generation."""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.validator = Validator()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # Inherit initialization from DataProcessor
+        self.validator = Validator()
+        
+        
     def _process_file(self, data_path: Path):
         """Processing single file."""
         logging.info(get_translation("Processing file: {path}", path=data_path))
@@ -573,38 +598,83 @@ class AutoSchemaDB(SchemaHandler, DatabaseHandler):
             return list(csv.DictReader(f))
 
     def _unwrap_nested_data(self, data: Any) -> List[Dict]:
-        """Extracting nested YAML/JSON-structure."""
+        """
+        Extract nested YAML/JSON structure, focusing on the 'data' key while ignoring other keys like 'metadata'.
+        Supports multi-level nesting and handles edge cases with detailed logging.
+
+        :param data: The input data, which can be a dictionary or list.
+        :return: A list of dictionaries extracted from the 'data' key or an empty list if not found.
+        """
         if isinstance(data, dict):
-            for v in data.values():
-                if isinstance(v, list):
-                    return v
-        return data if isinstance(data, list) else []
+            # Focus exclusively on the 'data' key
+            if 'data' in data and isinstance(data['data'], list):
+                logging.debug("Successfully extracted 'data' key.")
+                return data['data']
+            # Recursively check nested dictionaries
+            for k, v in data.items():
+                if isinstance(v, dict) or isinstance(v, list):
+                    logging.debug(f"Recursing into nested structure at key: '{k}'")
+                    result = self._unwrap_nested_data(v)
+                    if result:
+                        return result
+        elif isinstance(data, list):
+            return data  # Directly return if it's already a list
+        logging.warning(f"Unsupported data structure: {type(data)}. Returning empty list.")
+        return []
 
     def _get_or_create_schema(self, data_path: Path, data: List[Dict]) -> Dict:
-        """Loads existing schema or generates new one."""
+        """Loads existing schema or generates a new one."""
         schema_path = self._data_to_schema_path(data_path)
         if schema_path.exists():
             return self._load_schema(schema_path)
         
+        # Ensure generate_schema is called correctly
         schema = self.generate_schema(data, data_path)
         self._save_schema(schema, schema_path)
         return schema
 
     def _data_to_schema_path(self, data_path: Path) -> Path:
-        return self.schema_dir / data_path.relative_to(self.data_dir).with_name(
-            data_path.name.replace("_data", "_schema")
+        """
+        Converts a data file path to its corresponding schema file path.
+        Mirrors the directory structure of the /data folder in the /schemas folder.
+
+        Example:
+        Input:
+            data_path: Path("data/physics/units/base_SI_units_data.yaml")
+        Output:
+            Path("schemas/physics/units/base_SI_units_schema.yaml")
+
+        Parameters:
+            data_path (Path): The path to the data file.
+
+        Returns:
+            Path: The corresponding schema file path.
+        """
+        # Mirror directory structure from data_dir to schema_dir
+        relative_path = data_path.relative_to(self.data_dir)
+        schema_path = self.schema_dir / relative_path.with_name(
+            relative_path.name.replace("_data", "_schema")
         )
+        schema_path.parent.mkdir(parents=True, exist_ok=True)  # Create subdirectories
+        # print(f"Schema path generated: {schema_path}")
+        return schema_path
 
     def _data_to_db_path(self, data_path: Path) -> Path:
-        # keep full folder structure
-        stem = data_path.stem.replace("_data", "")
-        db_name = f"{stem}.db"
-        
-        # Calculate realtive path, without using .parent
-        rel_path = data_path.relative_to(self.data_dir)
-        target_dir = self.db_dir / rel_path.parent
-        
-        return target_dir / db_name
+        """
+        Converts a data file path to its corresponding database file path.
+        Ensures that the directory structure of /data is mirrored under /db.
+
+        Example:
+        "data/physics/units/base_SI_units_data.yaml" -> 
+        "db/physics/units/base_SI_units.db"
+        """
+        # Mirror directory structure from data_dir to db_dir
+        relative_path = data_path.relative_to(self.data_dir)
+        db_name = relative_path.stem.replace("_data", "") + ".db"
+        db_path = self.db_dir / relative_path.parent / db_name
+        db_path.parent.mkdir(parents=True, exist_ok=True)  # Create subdirectories
+        # print(f"DB path generated: {db_path}")
+        return db_path
     
 
     def _load_schema(self, schema_path: Path) -> Dict:
@@ -615,6 +685,8 @@ class AutoSchemaDB(SchemaHandler, DatabaseHandler):
         schema_path.parent.mkdir(parents=True, exist_ok=True)
         with open(schema_path, 'w', encoding='utf-8') as f:
             yaml.dump(schema, f, allow_unicode=True)
+
+# === Main function call ===
 
 if __name__ == "__main__":
     processor = AutoSchemaDB()

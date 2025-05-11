@@ -1,6 +1,6 @@
 physics/units/base_SI_units_data.yaml:
-  data_hash: cb1c8847f2a5164bc1b3cf33a4b578c6b6653f2019da486e55ce8113095bc560
-  schema_hash: 2acde9b31327d68a854dd1fd9cdeb618129690d43d90b42f2f9b243bceec4909
+  data_hash: e8d7bb5220b33251e077509ff6b6e8f507c802b5a65790b61ca49a512e9c25ed
+  schema_hash: 904bdf071d583c6078747e608a460d6cda8520dd785eef8f5e0c30c0136ca215
 physics/units/derived_SI_units_data.yaml:
   data_hash: 58026ff19979192e66926c0c245522ee526ca5f74b2c048d33fa897bbfa7bff6
   schema_hash: 586bb4bf24f5c9d4f4017a6b1b7fdce87fe6dbdc9aee2b062ce69ce826921040
@@ -15,4 +15,4 @@ utilities/languages_data.yaml:
   schema_hash: 5e164df0e57262905b8d8473c5aea0c835718b3fd3b1d59a07bac87c8fd0e552
 utilities/translations_data.yaml:
   data_hash: 23b84870d6a6b2dad98829f40883e923588bc07348f100a58e828a3d7d3ca6c3
-  schema_hash: 94436727944dff7d987fefac4998b192eefa6b931e70a67440796b8f53096ef8
+  schema_hash: e52c9ba2fbcde908665364454a134389cf2763935a728b5eab81fa1177edb2d2

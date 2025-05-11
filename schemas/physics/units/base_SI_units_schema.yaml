@@ -8,6 +8,30 @@ fields:
 - name: dimension
   type: TEXT
   type_params: []
+- name: latex
+  type: TEXT
+  type_params: []
+- name: latex_var
+  type: TEXT
+  type_params: []
+- name: mathml
+  type: TEXT
+  type_params: []
+- name: mathml_var
+  type: TEXT
+  type_params: []
+- name: markdown
+  type: TEXT
+  type_params: []
+- name: markdown_var
+  type: TEXT
+  type_params: []
+- name: description
+  type: TEXT
+  type_params: []
+- name: definition
+  type: TEXT
+  type_params: []
 metadata:
   private: false
 table: base_SI_units

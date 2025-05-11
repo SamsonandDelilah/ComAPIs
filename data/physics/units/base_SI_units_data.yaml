@@ -1,4 +1,11 @@
-base:_SI_units_data:
+metadata:
+  filename: base_SI_units_data.yaml
+  version: "1.0.0"
+  created_at: "2025-05-08T15:00:00Z"
+  author: "Max Mustermann"
+  source: "https://en.wikipedia.org/wiki/International_System_of_Units"
+
+data:
   - symbol: m
     name_en: metre
     dimension: L
