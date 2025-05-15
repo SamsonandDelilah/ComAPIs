@@ -29,6 +29,7 @@ replace_tabs.py
 *.bak
 *.tmp
 test_*.*
+*_test.*
 
 # Sonstige
 .DS_Store

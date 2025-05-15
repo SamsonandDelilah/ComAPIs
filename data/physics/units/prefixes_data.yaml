@@ -1,18 +1,70 @@
 metadata:
   filename: prefixes_data.yaml
   version: "1.0.0"
-  created_at: "2025-05-08T15:00:00Z"
+  created_at: "2025-05-12T15:00:00Z"
   author: "Max Mustermann"
-  source: "https://doi.org/10.xxxx/abc123"
+  source: "https://en.wikipedia.org/wiki/Metric_prefix"
 
 data:
-  - symbol: "k"
-    name_en: "kilo"
-    factor: 1000
+  - symbol: "Q"
+    name_en: "quetta"
+    factor: 1000000000000000000000000000000
+    unit_symbol: "m"
+  - symbol: "R"
+    name_en: "ronna"
+    factor: 1000000000000000000000000000
+    unit_symbol: "m"
+  - symbol: "Y"
+    name_en: "yotta"
+    factor: 1000000000000000000000000
+    unit_symbol: "m"
+  - symbol: "Z"
+    name_en: "zetta"
+    factor: 1000000000000000000000
+    unit_symbol: "m"
+  - symbol: "E"
+    name_en: "exa"
+    factor: 1000000000000000000
+    unit_symbol: "m"
+  - symbol: "P"
+    name_en: "peta"
+    factor: 1000000000000000
+    unit_symbol: "m"
+  - symbol: "T"
+    name_en: "tera"
+    factor: 1000000000000
+    unit_symbol: "m"
+  - symbol: "G"
+    name_en: "giga"
+    factor: 1000000000
     unit_symbol: "m"
   - symbol: "M"
     name_en: "mega"
     factor: 1000000
+    unit_symbol: "m"
+  - symbol: "k"
+    name_en: "kilo"
+    factor: 1000
+    unit_symbol: "m"
+  - symbol: "h"
+    name_en: "hecto"
+    factor: 100
+    unit_symbol: "m"
+  - symbol: "da"
+    name_en: "deca"
+    factor: 10
+    unit_symbol: "m"
+  - symbol: ""
+    name_en: ""
+    factor: 1
+    unit_symbol: "m"
+  - symbol: "d"
+    name_en: "deci"
+    factor: 0.1
+    unit_symbol: "m"
+  - symbol: "c"
+    name_en: "centi"
+    factor: 0.01
     unit_symbol: "m"
   - symbol: "m"
     name_en: "milli"
@@ -21,4 +73,36 @@ data:
   - symbol: "µ"
     name_en: "micro"
     factor: 0.000001
+    unit_symbol: "m"
+  - symbol: "n"
+    name_en: "nano"
+    factor: 0.000000001
+    unit_symbol: "m"
+  - symbol: "p"
+    name_en: "pico"
+    factor: 0.000000000001
+    unit_symbol: "m"
+  - symbol: "f"
+    name_en: "femto"
+    factor: 0.000000000000001
+    unit_symbol: "m"
+  - symbol: "a"
+    name_en: "atto"
+    factor: 0.000000000000000001
+    unit_symbol: "m"
+  - symbol: "z"
+    name_en: "zepto"
+    factor: 0.000000000000000000001
+    unit_symbol: "m"
+  - symbol: "y"
+    name_en: "yocto"
+    factor: 0.000000000000000000000001
+    unit_symbol: "m"
+  - symbol: "r"
+    name_en: "ronto"
+    factor: 0.000000000000000000000000001
+    unit_symbol: "m"
+  - symbol: "q"
+    name_en: "quecto"
+    factor: 0.000000000000000000000000000001
     unit_symbol: "m"

@@ -9,6 +9,8 @@ Our mission is to create a **Wikipedia for Open Source APIs**: a freely availabl
 We believe that access to reliable, easy-to-use APIs should be **open and free** for all, empowering innovation, education, and discovery across disciplines.
 
 Contact me via e-mail.
+$$ result = \frac{\left(a + b\right)^{2}}{\sqrt{c + 7}} + \sin{\left(x \right)} $$
+$$ \frac{\left(a + b\right)^{2}}{\sqrt{c + 7}} + \sin\left(x\right) $$
 
 ## What We Offer
 
